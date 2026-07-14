@@ -1,0 +1,49 @@
+@import 'tailwindcss';
+@import './base.css';
+
+#app {
+  min-height: 100vh;
+}
+
+@theme {
+  --color-primary-50: #f0f7ff;
+  --color-primary-100: #d9ecff;
+  --color-primary-200: #b8dcff;
+  --color-primary-500: #2563eb;
+  --color-primary-600: #1f56d8;
+  --color-primary-700: #1d4ed8;
+  --color-primary-900: #163b8f;
+  --color-surface: #ffffff;
+  --color-app-bg: #f4f8fc;
+  --color-app-bg-soft: #edf4fb;
+  --color-app-border: #d8e4f2;
+  --color-app-text: #0f172a;
+  --color-app-muted: #5b6b82;
+  --shadow-panel: 0 18px 40px rgba(37, 99, 235, 0.08);
+  --shadow-soft: 0 8px 24px rgba(15, 23, 42, 0.05);
+}
+
+@layer base {
+  body {
+    @apply bg-app-bg text-app-text;
+    background-image: linear-gradient(180deg, #f8fbff 0%, #f4f8fc 22%, #f4f8fc 100%);
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-primary-500 ring-offset-2 ring-offset-white;
+  }
+}
+
+@layer components {
+  .panel {
+    @apply rounded-3xl border border-app-border/80 bg-white/95 shadow-[var(--shadow-panel)];
+  }
+
+  .page-container {
+    @apply mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8;
+  }
+
+  .soft-surface {
+    @apply rounded-3xl border border-white/60 bg-linear-to-br from-white to-primary-50/40 shadow-[var(--shadow-soft)];
+  }
+}
