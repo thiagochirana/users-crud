@@ -8,6 +8,7 @@ import { mapApiErrorsToFieldErrors, mapUserResponseToForm, formatDocument, forma
 import { asApiError, getUser, updateUser } from '@/features/users/api/users'
 import UserForm from '@/features/users/components/UserForm.vue'
 import { initialUserForm, type UserFieldErrors, type UserRequest } from '@/features/users/types/user'
+import { validateUserForm } from '@/features/users/validation'
 import { useAppFeedbackStore } from '@/stores/appFeedback'
 
 const route = useRoute()
@@ -51,6 +52,13 @@ async function handleSubmit() {
   errors.value = {}
   formError.value = ''
   if (submitting.value) return
+
+  const validationErrors = validateUserForm(form)
+  if (Object.keys(validationErrors).length > 0) {
+    errors.value = validationErrors
+    formError.value = 'Corrija os campos destacados e tente novamente.'
+    return
+  }
 
   submitting.value = true
 

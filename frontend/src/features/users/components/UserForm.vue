@@ -53,24 +53,29 @@ function updateField<K extends keyof UserRequest>(field: K, value: UserRequest[K
           autocomplete="name"
           label="Nome completo"
           :maxlength="255"
+          required
           @update:model-value="updateField('name', $event)"
         />
       </div>
 
       <AppInput
         :error="errors.birth_date"
+        hint="Use uma data valida e anterior ou igual a hoje."
         :model-value="modelValue.birth_date"
         label="Data de nascimento"
+        required
         type="date"
         @update:model-value="updateField('birth_date', $event)"
       />
 
       <AppInput
         :error="errors.document"
+        hint="Informe um CPF com 11 digitos."
         inputmode="numeric"
         :model-value="modelValue.document"
-        label="Documento"
+        label="Documento (CPF)"
         :maxlength="14"
+        required
         @update:model-value="updateField('document', $event)"
       />
 
@@ -81,6 +86,7 @@ function updateField<K extends keyof UserRequest>(field: K, value: UserRequest[K
           autocomplete="street-address"
           label="Endereco"
           :maxlength="255"
+          required
           @update:model-value="updateField('address_line', $event)"
         />
       </div>
@@ -90,6 +96,7 @@ function updateField<K extends keyof UserRequest>(field: K, value: UserRequest[K
         :model-value="modelValue.address_number"
         label="Numero"
         :maxlength="50"
+        required
         @update:model-value="updateField('address_number', $event)"
       />
 
@@ -99,6 +106,7 @@ function updateField<K extends keyof UserRequest>(field: K, value: UserRequest[K
         autocomplete="address-level2"
         label="Cidade"
         :maxlength="255"
+        required
         @update:model-value="updateField('city', $event)"
       />
 
@@ -112,10 +120,12 @@ function updateField<K extends keyof UserRequest>(field: K, value: UserRequest[K
 
       <AppInput
         :error="errors.zip"
+        hint="Informe um CEP com 8 digitos."
         :model-value="modelValue.zip"
         autocomplete="postal-code"
         label="CEP"
         :maxlength="9"
+        required
         @update:model-value="updateField('zip', $event)"
       />
     </div>

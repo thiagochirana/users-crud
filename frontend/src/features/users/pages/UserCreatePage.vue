@@ -10,6 +10,7 @@ import {
   mapApiErrorsToFieldErrors,
 } from '@/features/users/api/mappers'
 import UserForm from '@/features/users/components/UserForm.vue'
+import { validateUserForm } from '@/features/users/validation'
 import {
   initialUserForm,
   type UserFieldErrors,
@@ -38,6 +39,13 @@ async function handleSubmit() {
   errors.value = {}
   formError.value = ''
   if (submitting.value) return
+
+  const validationErrors = validateUserForm(form)
+  if (Object.keys(validationErrors).length > 0) {
+    errors.value = validationErrors
+    formError.value = 'Corrija os campos destacados e tente novamente.'
+    return
+  }
 
   submitting.value = true
 

@@ -16,6 +16,7 @@ const props = withDefaults(
     autocomplete?: string
     inputmode?: AppInputMode
     pattern?: string
+    required?: boolean
   }>(),
   {
     type: 'text',
@@ -27,6 +28,7 @@ const props = withDefaults(
     autocomplete: undefined,
     inputmode: undefined,
     pattern: undefined,
+    required: false,
   },
 )
 
@@ -62,6 +64,7 @@ const describedBy = computed(() => {
       :maxlength="maxlength"
       :pattern="pattern"
       :placeholder="placeholder"
+      :required="required"
       :type="type"
       :value="modelValue"
       @blur="emit('blur')"
