@@ -113,8 +113,10 @@ Acessos:
 
 - campos obrigatorios no frontend e backend
 - formato basico de data no frontend e backend
-- formato basico de CPF no frontend
-- validacao de CPF no backend
+- formato basico de documento CPF/ID no frontend
+- mascara automatica de CPF apenas quando o valor possui exatamente 11 digitos numericos
+- validacao de CPF no backend quando o documento for numerico com 11 digitos
+- validacao basica de ID alfanumerico no backend
 - validacao de CEP e UF no frontend
 - mensagens claras de erro e sucesso
 
