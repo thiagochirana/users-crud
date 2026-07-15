@@ -34,7 +34,7 @@ const stateOptions = [{ label: 'Selecione', value: '' }].concat(
 )
 
 function updateField<K extends keyof UserRequest>(field: K, value: UserRequest[K]) {
-  const nextValue = field === 'document' ? formatDocument(String(value).replace(/\D/g, '')) : value
+  const nextValue = field === 'document' ? formatDocument(String(value)) : value
 
   emit('update:modelValue', {
     ...props.modelValue,
@@ -70,11 +70,11 @@ function updateField<K extends keyof UserRequest>(field: K, value: UserRequest[K
 
       <AppInput
         :error="errors.document"
-        hint="Informe um CPF com 11 digitos."
-        inputmode="numeric"
+        hint="Aceita CPF com mascara automatica quando houver exatamente 11 numeros, ou ID alfanumerico."
+        inputmode="text"
         :model-value="modelValue.document"
-        label="Documento (CPF)"
-        :maxlength="14"
+        label="Documento (CPF/ID)"
+        :maxlength="50"
         required
         @update:model-value="updateField('document', $event)"
       />

@@ -8,6 +8,7 @@ import {
   formatDocument,
   formatZip,
   mapApiErrorsToFieldErrors,
+  normalizeDocument,
 } from '@/features/users/api/mappers'
 import UserForm from '@/features/users/components/UserForm.vue'
 import { validateUserForm } from '@/features/users/validation'
@@ -29,7 +30,7 @@ const submitting = ref(false)
 function updateForm(nextValue: UserRequest) {
   Object.assign(form, {
     ...nextValue,
-    document: formatDocument(nextValue.document),
+    document: formatDocument(normalizeDocument(nextValue.document)),
     zip: formatZip(nextValue.zip),
     state: nextValue.state.toUpperCase().slice(0, 2),
   })

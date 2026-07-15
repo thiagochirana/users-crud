@@ -1,4 +1,5 @@
 import type { UserFieldErrors, UserRequest } from '@/features/users/types/user'
+import { normalizeDocument } from '@/features/users/api/mappers'
 
 function isBlank(value: string) {
   return value.trim().length === 0
@@ -39,13 +40,15 @@ function appendError(errors: UserFieldErrors, field: keyof UserRequest, message:
 
 export function validateUserForm(form: UserRequest): UserFieldErrors {
   const errors: UserFieldErrors = {}
-  const documentDigits = form.document.replace(/\D/g, '')
+  const normalizedDocument = normalizeDocument(form.document)
 
   if (isBlank(form.name)) appendError(errors, 'name', 'Nome e obrigatorio.')
-  if (isBlank(form.birth_date)) appendError(errors, 'birth_date', 'Data de nascimento e obrigatoria.')
+  if (isBlank(form.birth_date))
+    appendError(errors, 'birth_date', 'Data de nascimento e obrigatoria.')
   if (isBlank(form.document)) appendError(errors, 'document', 'Documento e obrigatorio.')
   if (isBlank(form.address_line)) appendError(errors, 'address_line', 'Endereco e obrigatorio.')
-  if (isBlank(form.address_number)) appendError(errors, 'address_number', 'Numero do endereco e obrigatorio.')
+  if (isBlank(form.address_number))
+    appendError(errors, 'address_number', 'Numero do endereco e obrigatorio.')
   if (isBlank(form.city)) appendError(errors, 'city', 'Cidade e obrigatoria.')
   if (isBlank(form.state)) appendError(errors, 'state', 'Estado e obrigatorio.')
   if (isBlank(form.zip)) appendError(errors, 'zip', 'CEP e obrigatorio.')
@@ -56,8 +59,12 @@ export function validateUserForm(form: UserRequest): UserFieldErrors {
     appendError(errors, 'birth_date', 'A data de nascimento nao pode ser futura.')
   }
 
-  if (form.document && documentDigits.length !== 11) {
-    appendError(errors, 'document', 'Informe um CPF com 11 digitos.')
+  if (form.document && normalizedDocument.length < 1) {
+    appendError(errors, 'document', 'Informe um documento com pelo menos 1 caractere.')
+  }
+
+  if (form.document && normalizedDocument.length > 50) {
+    appendError(errors, 'document', 'Informe um documento com no maximo 50 caracteres.')
   }
 
   if (form.zip && form.zip.replace(/\D/g, '').length !== 8) {

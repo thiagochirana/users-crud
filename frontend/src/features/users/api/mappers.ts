@@ -78,7 +78,7 @@ export function mapUserResponseToForm(input: unknown): UserRequest {
 export function mapUserFormToRequest(form: UserRequest): UserRequest {
   return {
     ...form,
-    document: form.document.replace(/\D/g, ''),
+    document: normalizeDocument(form.document),
     zip: form.zip.replace(/\D/g, ''),
     state: form.state.trim().toUpperCase(),
     birth_date: toApiBirthDate(form.birth_date),
@@ -102,10 +102,18 @@ export function normalizeUsersListResponse(input: unknown): UserListResponse {
   }
 }
 
-export function formatDocument(value: string) {
-  const digits = value.replace(/\D/g, '').slice(0, 11)
+export function normalizeDocument(value: string) {
+  return value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase()
+}
 
-  return digits
+export function formatDocument(value: string) {
+  const normalized = normalizeDocument(value)
+
+  if (!/^\d{11}$/.test(normalized)) {
+    return normalized
+  }
+
+  return normalized
     .replace(/(\d{3})(\d)/, '$1.$2')
     .replace(/(\d{3})(\d)/, '$1.$2')
     .replace(/(\d{3})(\d{1,2})$/, '$1-$2')

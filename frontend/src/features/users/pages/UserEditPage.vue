@@ -4,7 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import AppAlert from '@/components/ui/AppAlert.vue'
 import AppSpinner from '@/components/ui/AppSpinner.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
-import { mapApiErrorsToFieldErrors, mapUserResponseToForm, formatDocument, formatZip } from '@/features/users/api/mappers'
+import { mapApiErrorsToFieldErrors, mapUserResponseToForm, formatDocument, formatZip, normalizeDocument } from '@/features/users/api/mappers'
 import { asApiError, getUser, updateUser } from '@/features/users/api/users'
 import UserForm from '@/features/users/components/UserForm.vue'
 import { initialUserForm, type UserFieldErrors, type UserRequest } from '@/features/users/types/user'
@@ -25,7 +25,7 @@ const errors = ref<UserFieldErrors>({})
 function updateForm(nextValue: UserRequest) {
   Object.assign(form, {
     ...nextValue,
-    document: formatDocument(nextValue.document),
+    document: formatDocument(normalizeDocument(nextValue.document)),
     zip: formatZip(nextValue.zip),
     state: nextValue.state.toUpperCase().slice(0, 2),
   })
