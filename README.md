@@ -14,6 +14,17 @@ Atende os fluxos de:
 - exclusao de usuario
 - validacoes no frontend e backend
 
+## Sumario
+
+- [Requisitos](#requisitos)
+- [Estrutura](#estrutura)
+- [Banco de dados local](#banco-de-dados-local)
+- [Executando localmente sem Docker](#executando-localmente-sem-docker)
+- [Executando com Docker Compose (Para facilitar)](#executando-com-docker-compose-para-facilitar)
+- [Validacoes implementadas](#validacoes-implementadas)
+- [Endpoints principais](#endpoints-principais)
+- [Comandos uteis](#comandos-uteis)
+
 ## Requisitos
 
 - Java 26 para execucao local da API
