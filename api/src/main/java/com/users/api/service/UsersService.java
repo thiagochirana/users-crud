@@ -65,7 +65,6 @@ public class UsersService {
 				.build());
 	}
 
-    // POST /users
 	public ResponseEntity<?> create(UserRequestDTO request) {
 		Map<String, List<String>> errors = validateCreateRequest(request, null);
 		if (!errors.isEmpty()) {
@@ -73,11 +72,11 @@ public class UsersService {
 		}
 
 		LocalDateTime now = LocalDateTime.now();
-		String cpf = normalizeCpf(request.getDocument().trim());
+		String document = normalizeDocument(request.getDocument());
 		User user = User.builder()
 				.name(request.getName().trim())
 				.birthDate(parseBirthDate(request.getBirthDate().trim()))
-				.document(cpf)
+				.document(document)
 				.addressLine(request.getAddressLine().trim())
 				.addressNumber(request.getAddressNumber().trim())
 				.city(request.getCity().trim())
@@ -90,12 +89,10 @@ public class UsersService {
 		userRepository.save(user);
 		return ResponseEntity.status(HttpStatus.CREATED)
 				.body(ApiResponseDTO.builder()
-//						.data(toResponse(savedUser))
 						.message("Usuário criado com sucesso")
 						.build());
 	}
 
-    // PATCH /users
 	public ResponseEntity<?> update(Long id, UserRequestDTO request) {
 		Optional<User> existingUser = userRepository.findById(id);
 		if (existingUser.isEmpty()) {
@@ -111,7 +108,7 @@ public class UsersService {
 		User user = existingUser.get();
 		String name = normalize(request.getName());
 		String birthDate = normalize(request.getBirthDate());
-		String document = normalizeCpf(request.getDocument());
+		String document = normalizeDocument(request.getDocument());
 		String addressLine = normalize(request.getAddressLine());
 		String addressNumber = normalize(request.getAddressNumber());
 		String city = normalize(request.getCity());
@@ -144,14 +141,12 @@ public class UsersService {
 		}
 		user.setUpdatedAt(LocalDateTime.now());
 
-		User savedUser = userRepository.save(user);
+		userRepository.save(user);
 		return ResponseEntity.ok(ApiResponseDTO.builder()
-//				.data(toResponse(savedUser))
 				.message("Usuário atualizado com sucesso")
 				.build());
 	}
 
-    // DETELE /users
 	public ResponseEntity<?> delete(Long id) {
 		Optional<User> user = userRepository.findById(id);
 		if (user.isEmpty()) {
@@ -171,7 +166,7 @@ public class UsersService {
 
 		String name = normalize(request.getName());
 		String birthDate = normalize(request.getBirthDate());
-		String document = normalizeCpf(request.getDocument());
+		String document = normalizeDocument(request.getDocument());
 		String addressLine = normalize(request.getAddressLine());
 		String addressNumber = normalize(request.getAddressNumber());
 		String city = normalize(request.getCity());
@@ -179,15 +174,15 @@ public class UsersService {
 		String zip = normalize(request.getZip());
 
 		validateRequired("name", name, "Nome é obrigatório", 255, "Nome deve ter no máximo 255 caracteres", errors);
-		validateRequired("document", document, "CPF é obrigatório", 11, "CPF deve conter 11 dígitos", errors);
+		validateRequired("document", document, "Documento é obrigatório", 50, "Documento deve ter no máximo 50 caracteres", errors);
 		validateRequired("address_line", addressLine, "Endereço é obrigatório", 255, "Endereço deve ter no máximo 255 caracteres", errors);
 		validateRequired("address_number", addressNumber, "Número do endereço é obrigatório", 50, "Número do endereço deve ter no máximo 50 caracteres", errors);
 		validateRequired("city", city, "Cidade é obrigatória", 255, "Cidade deve ter no máximo 255 caracteres", errors);
 		validateRequired("state", state, "Estado é obrigatório", 100, "Estado deve ter no máximo 100 caracteres", errors);
 		validateRequired("zip", zip, "CEP é obrigatório", 20, "CEP deve ter no máximo 20 caracteres", errors);
 
-		if (document != null && !isValidCpf(document)) {
-			addError(errors, "document", "CPF deve ser válido");
+		if (document != null) {
+			validateDocument(document, errors);
 		}
 
 		if (birthDate == null) {
@@ -203,7 +198,7 @@ public class UsersService {
 		if (document != null) {
 			Optional<User> existingUser = userRepository.findByDocument(document);
 			if (existingUser.isPresent() && !existingUser.get().getId().equals(userId)) {
-				addError(errors, "document", "CPF já existe");
+				addError(errors, "document", "Documento já existe");
 			}
 		}
 
@@ -215,8 +210,8 @@ public class UsersService {
 
 		validateOptional("name", request.getName(), normalize(request.getName()), "Nome é obrigatório", 255,
 				"Nome deve ter no máximo 255 caracteres", errors);
-		validateOptional("document", request.getDocument(), normalizeCpf(request.getDocument()), "CPF é obrigatório", 11,
-				"CPF deve conter 11 dígitos", errors);
+		validateOptional("document", request.getDocument(), normalizeDocument(request.getDocument()), "Documento é obrigatório", 50,
+				"Documento deve ter no máximo 50 caracteres", errors);
 		validateOptional("address_line", request.getAddressLine(), normalize(request.getAddressLine()), "Endereço é obrigatório", 255,
 				"Endereço deve ter no máximo 255 caracteres", errors);
 		validateOptional("address_number", request.getAddressNumber(), normalize(request.getAddressNumber()), "Número do endereço é obrigatório", 50,
@@ -242,18 +237,18 @@ public class UsersService {
 		}
 
 		if (request.getDocument() != null) {
-			String document = normalizeCpf(request.getDocument());
-			if (document != null && !isValidCpf(document)) {
-				addError(errors, "document", "CPF deve ser válido");
+			String document = normalizeDocument(request.getDocument());
+			if (document != null) {
+				validateDocument(document, errors);
 			}
 		}
 
 		if (request.getDocument() != null) {
-			String document = normalizeCpf(request.getDocument());
+			String document = normalizeDocument(request.getDocument());
 			if (document != null) {
 				Optional<User> existingUser = userRepository.findByDocument(document);
 				if (existingUser.isPresent() && !existingUser.get().getId().equals(userId)) {
-					addError(errors, "document", "CPF já existe");
+					addError(errors, "document", "Documento já existe");
 				}
 			}
 		}
@@ -298,16 +293,45 @@ public class UsersService {
 		return trimmedValue.isEmpty() ? null : trimmedValue;
 	}
 
-	private String normalizeCpf(String value) {
+	/*
+	 * O documento aceita dois fluxos:
+	 * - CPF: exatamente 11 dígitos, salvo sem máscara e validado por dígitos verificadores.
+	 * - ID: valor alfanumérico simples, salvo normalizado em maiúsculas para garantir consistência e unicidade.
+	 */
+	private String normalizeDocument(String value) {
 		String normalizedValue = normalize(value);
 		if (normalizedValue == null) {
 			return null;
 		}
 
-		String cpf = normalizedValue.replaceAll("\\D", "");
-		return cpf.isEmpty() ? null : cpf;
+		String alphanumericValue = normalizedValue.replaceAll("[^A-Za-z0-9]", "").toUpperCase();
+		return alphanumericValue.isEmpty() ? null : alphanumericValue;
 	}
 
+	private void validateDocument(String document, Map<String, List<String>> errors) {
+	    // valida primeiramente se é um CPF
+        if (isCpfDocument(document) && !isValidCpf(document)) {
+      		addError(errors, "document", "CPF deve ser válido");
+            return;
+       	}
+
+		if (document.length() < 1) {
+			addError(errors, "document", "Documento deve ter pelo menos 1 caractere");
+		}
+
+		if (!document.matches("^[A-Z0-9]+$")) {
+			addError(errors, "document", "Documento deve conter apenas letras e números");
+		}
+	}
+
+	private boolean isCpfDocument(String document) {
+		return document != null && document.matches("^\\d{11}$");
+	}
+
+	/*
+	 * A validação completa de CPF só é aplicada quando o documento tem 11 dígitos numéricos.
+	 * Qualquer outro valor alfanumérico entra no fluxo de ID e usa apenas validação básica de formato.
+	 */
 	private boolean isValidCpf(String cpf) {
 		if (cpf == null || cpf.length() != 11 || cpf.chars().distinct().count() == 1) {
 			return false;
